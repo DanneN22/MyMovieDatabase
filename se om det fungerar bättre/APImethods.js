@@ -13,11 +13,105 @@ async function search() {
 
     if (data.Response === "True") {
         //Öppna ny sida med info'
-        
-        console.log("GÖR NÅT")
+        console.log(data.Search);
+
+        displayResults(data.Search);
     } else {
         alert("No movies found!");
     }
+}
+
+function displayResults(movies) {
+    document.querySelector('main').style.display = 'none';
+    const resultsRef = document.querySelector('.results');
+    resultsRef.innerHTML = ""
+    //Istället för en p-tagg per film, skapa ett kort där Poster och titel syns.
+
+    movies.forEach(movie => {
+        const movieRef = document.createElement('p');
+        movieRef.textContent = movie.Title;
+        //movieRef.setAttribute('data-id', movie.imdbID);
+        movieRef.dataset.id = movie.imdbID;
+        resultsRef.appendChild(movieRef);
+
+        // const cardTemplate = `
+        //     <div class="card">
+        //         <img src=${movie.Poster}>
+        //         <h3>${movie.Title}</h3>
+        //     </div>
+        // `;
+
+        movieRef.addEventListener('click', async (event) => {
+            console.log(event.target.dataset.id);
+            const response = await fetch(`${moviesApiUrl}&i=${event.target.dataset.id}&plot=full`);
+            const data = await response.json();
+
+            console.log(data);
+            renderMovieDetails(data);
+        });
+    });
+}
+
+function hidedetails(){
+    const resultsRef = document.querySelector('.results');
+    resultsRef.style.display = "block"
+
+    const detailsRef = document.querySelector('.details');
+    detailsRef.style.display = "none"
+
+    const back = document.getElementById("detailsbackbutton")
+    back.style.display = "none"
+}
+function renderMovieDetails(movie) {
+    //Göm sökresultaten
+    //Visa den detaljerade informationen (minst 5 detaljer)
+    
+
+    const resultsRef = document.querySelector('.results');
+    resultsRef.style.display = "none"
+
+    const detailsRef = document.querySelector('.details');
+    detailsRef.style.display = "block"
+
+    detailsRef.innerHTML = ""
+    
+    const backbutton = document.createElement("button")
+    backbutton.onclick = hidedetails
+    backbutton.id="detailsbackbutton"
+    backbutton.innerHTML = "Back"
+
+    const detailsimg = document.createElement("img")
+    detailsimg.src = movie.Poster
+
+    const detailstitel = document.createElement("h2")
+    detailstitel.innerText = "Titel: "+movie.Title
+
+    const detailsReleased = document.createElement("h5")
+    detailsReleased.innerText = "Released: "+movie.Released
+
+    const detailsactors = document.createElement("h5")
+    detailsactors.innerText = "Actors: "+movie.Actors
+
+    const detailsplot = document.createElement("h5")
+    detailsplot.innerText = "Plot: "+movie.Plot
+
+    const detailscard = document.createElement('div');
+    detailscard.className = "card"
+
+    detailscard.appendChild(detailsimg)
+
+    detailscard.appendChild(detailstitel)
+
+    detailscard.appendChild(detailsplot)
+
+    detailscard.appendChild(detailsactors)
+
+    detailscard.appendChild(detailsReleased)
+
+    detailsRef.appendChild(backbutton)
+
+    detailsRef.appendChild(detailscard)
+
 }
 
 
